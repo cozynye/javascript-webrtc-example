@@ -57,7 +57,7 @@ console.log('signaling')
 console.log(signaling)
 
 startButton.onclick = async () => {
-    //비디오 가져오기 / getUserMediadml 첫 번째 파라미터로 어느 미디어를 사용할 것인지 객체로 전달하고, 성공하면 첫번째 콜백, 실패하면 두번째 콜백이 실행된다.
+    //비디오 가져오기 / getUserMediadml 첫 번째 파라미터로 어느 미디어를 사용할 것인지 객체로 전달
   localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
   console.log('localStream')
   console.log(localStream)
