@@ -11,7 +11,8 @@ app.get('/' ,(req,res)=>
     res.render('home')
 )
 
-const handleListen =() =>{
+
+const handleListen =(title) =>{
     console.log(`Listening on ws:`)
 }
 // app.listen(3000,handleListen)

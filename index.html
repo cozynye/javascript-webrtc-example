@@ -33,6 +33,10 @@
         .etcWrapper{
             text-align: center;
         }
+        .buttonT{
+            padding: 10px;
+            font-size: 25px;
+        }
     </style>
 </head>
 <body>
@@ -55,7 +59,10 @@
             <label for="videoSource">Your Video source: </label><select id="videoSource"></select>
         </div>
     </div>
-    
+    <button id="sessionRequest" class = 'buttonT'>sessionRequest</button>
+    <button id="createRoomRequest" class = 'buttonT'>createRoomRequest</button>
+    <button id="joinRoomRequest" class = 'buttonT'>joinRoomRequest</button>
+    <button id="publishRequest" class = 'buttonT'>publishRequest</button>
     <div class = 'videoWrapper'>
         <label class = 'videoDesc'>Remote</label>
         <video id="remoteVideo" playsinline autoplay></video>

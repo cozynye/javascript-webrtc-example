@@ -1,17 +1,17 @@
-Zoom Clone Using NodeJS, WebRTc and Websockets
+# Zoom Clone Using NodeJS, WebRTc and Websockets
 
 
-@@ Description
+###  Description
 
-1. @babel/core
+#### 1. @babel/core
 
-2. @babel/cli
+#### 2. @babel/cli
 
-3. @babel/node
+#### 3. @babel/node
 
-4. babel?
+#### 4. babel?
 
-5. nodemon
+#### 5. nodemon
 
 
 nodemon.json
@@ -28,11 +28,11 @@ exec : src/server.js에 대해 babel-node 명령문을 실행시키는 것
 
 "ignore":["src/public/*"] -> public 폴더 내의 파일이 변경되어도 nodemon을 실행시키지 않겠다.
 
-1. package.json
+#### 6. package.json
 
 nodemon이 호출되면 nodemon이 nodemon.json을 살펴보고 거기 있는 코드를 실행한다
 
-7. Websocket
+#### 7. Websocket
 
 브라우저에 내장된 websocket api
 
@@ -50,7 +50,7 @@ websocket 으로 실시간 chat, notification, call 같은 real-time을 만들 �
 websocket을 사용해서 연결하고 싶고, 서버가 지원한다면 wss를 쓰면 된다
 ex) wss://nomadcoder.co
 
-8. ws
+#### 8. ws
 
 library ws
 websocket protocol을 실행하는 package
