@@ -1,76 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
     <style>
-        .videoWrapper{
-            position: relative;
-            padding: 40px;
-            text-align: center;
-            
-        }
-
-        .videoDesc{
-            position: absolute;
-            color:grey;
-            font-size: 25px;
-            left:25%
-        }
-
-        #localVideo{
-            width: 820px;
-            height: 520px;
-            
-        }
-        #remoteVideo{
-            width: 830px;
-            height: 520px;
-        }
-
-        .etcWrapper{
-            text-align: center;
-        }
-        .buttonT{
+        .button {
+            background-color: aqua;
+            font-size: 30px;
             padding: 10px;
-            font-size: 25px;
+        }
+
+        .room {
+            width: 300px;
+            height: 20px;
+            border: 1px solid black;
+            font-size: 20px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 40px;
+
+        }
+
+        .room:hover {
+            cursor: pointer;
         }
     </style>
+
+    <script>
+        let socket;
+        let session;
+        let roomList;
+        window.onload = (function () {
+            socket = new WebSocket(`wss://omnitalk.io:8080`)
+
+            /** 소켓 연결 됐을 때 */
+            socket.addEventListener("open", () => {
+                console.log("connected to Browse ✅");
+            });
+            /** 소켓 연결 해제 됐을 때 */
+            socket.addEventListener("close", () => {
+                console.log("closed Server ❌");
+            });
+
+            socket.addEventListener("message", (message) => {
+                const lbsMessage = JSON.parse(message.data);
+                if (lbsMessage.result === "failed") {
+                    console.log("실패했습니다", lbsMessage);
+                    return;
+                }
+                if (
+                    lbsMessage.cmd === "WS_SESSION_RSP" &&
+                    lbsMessage.result === "success"
+                ) {
+                    console.log(lbsMessage);
+                    session = lbsMessage.session;
+                    console.log("세션을 받아왔습니다. 🟥", '세션은', session);
+                } else if (
+                    lbsMessage.cmd === "WS_ROOMLIST_RSP" &&
+                    lbsMessage.result === "success"
+                ) {
+                    console.log(lbsMessage);
+                    console.log("룸 리스트를 받아왔습니다. 🟨");
+                    roomList = lbsMessage.roomlist;
+                    const roomNode = document.getElementById('roomList')
+                    roomList.map(item => {
+                        const room = document.createElement('div');
+                        room.setAttribute('class', 'room')
+                        room.setAttribute('value', item.groom_id)
+                        room.onclick = function () {
+                            handleJoinRoom(item.groom_id)
+                        }
+                        const roomName = document.createTextNode(item.groom_id)
+                        roomNode.appendChild(room)
+                        room.appendChild(roomName)
+                    })
+                }  else {
+                    console.log('다른 요청이 생겼습니다🪸')
+                }
+            })
+        })
+
+        setTimeout(() => {
+            console.log("세션을 요청했습니다. 🟥");
+            socket.send(JSON.stringify({
+                cmd: "WS_SESSION_REQ",
+                domain: "test.net",
+                token: "1234-abcd-kqlk-1ab9",
+                email: "test1@omnistory.net",
+                sdk: "0.9.1",
+            }));
+        }, 500)
+
+        setTimeout(() => {
+            console.log("룸 리스트를 요청했습니다. 🟨");
+            socket.send(JSON.stringify({
+                cmd: "WS_ROOMLIST_REQ",
+                session: session,
+                domain: "test.net",
+            }));
+        }, 1000)
+
+
+        function handleMakeRoom() {
+            window.location.href = '/makeRoom.html'
+        }
+
+
+        /**
+        * @event 방 참여 요청 이벤트
+        */
+        function handleJoinRoom(groom_id) {
+            location.href = `room.html?groom_id=${groom_id}`;
+        };
+    </script>
 </head>
+
 <body>
-    <div class = 'videoWrapper'>
-        <label class = 'videoDesc'>Your</label>
-        <video id="localVideo" playsinline autoplay muted></video>
+    <button onclick="handleMakeRoom()" class='button'>방 만들기</button>
+
+    <div>
+        <h1>생성된 방 리스트</h1>
+        <div id="roomList">
+
+        </div>
     </div>
 
-    <div class="etcWrapper">
-        <button id="startButton">Start</button>
-        <button id="hangupButton">Hang Up</button>
-        
-        <div class="select">
-            <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
-        </div>
-        <div class="select">
-            <label for="audioOutput">Your Audio output destination: </label><select id="audioOutput"></select>
-        </div>
-        <div class="select">
-            <label for="videoSource">Your Video source: </label><select id="videoSource"></select>
-        </div>
-    </div>
-    <button id="sessionRequest" class = 'buttonT'>sessionRequest</button>
-    <button id="createRoomRequest" class = 'buttonT'>createRoomRequest</button>
-    <button id="joinRoomRequest" class = 'buttonT'>joinRoomRequest</button>
-    <button id="publishRequest" class = 'buttonT'>publishRequest</button>
-    <div class = 'videoWrapper'>
-        <label class = 'videoDesc'>Remote</label>
-        <video id="remoteVideo" playsinline autoplay></video>
-    </div>
-    
-
-    
-    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-<script src="./main.js" async></script>
 </body>
+
 </html>

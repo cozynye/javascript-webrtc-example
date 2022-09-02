@@ -295,19 +295,24 @@ async function start() {
 /**
  * 옴니스토리 테스트  시작
  */
+
 let socket;
 let session;
 let roomId;
 let groom_id;
+let publish_idx;
+let partlist;
 
 let localVideo = document.getElementById("localVideo");
 let remoteVideo = document.getElementById("remoteVideo");
 
 let localStream;
+let remoteStream;
+
 let myPeerConnection;
 
 /**
- * 기본 소켓 이벤트 걸어두기
+ * @event  기본 소켓 이벤트 걸어두기
  */
 function omni() {
   socket = new WebSocket(`wss://omnitalk.io:8080`); // ws://omnitalk.io:8000/ws -> 직접 접속이라 하면 안됨
@@ -354,49 +359,101 @@ function omni() {
       console.log("방에 참여를 완료 했습니다. 🟨");
     } else if (lbsMessage.cmd === "WS_PUBLISH_RSP") {
       console.log(lbsMessage);
-      remoteVideo.srcObject = lbsMessage.jsep.sdp;
+      myPeerConnection.setRemoteDescription(
+        new RTCSessionDescription(lbsMessage.jsep)
+      );
       console.log("퍼블리셔가 방 공개를 성공 했습니다. 🧤");
+    } else if (lbsMessage.cmd === "WS_PUBLISH_NOTI") {
+      publish_idx = lbsMessage.publish_idx;
+      console.log("🏎publish_idx를 받아왔습니다🏎");
+    } else if (
+      lbsMessage.cmd === "WS_PARTILIST_RSP" &&
+      lbsMessage.result === "success"
+    ) {
+      console.log(lbsMessage);
+      partlist = lbsMessage.partlist;
+      console.log("방 참여 리스트 요청을 받아왔습니다 🌕");
+    }
+    // 서브스크라이브 시작
+    else if (
+      lbsMessage.cmd === "WS_SUBSCRIBE_RSP" &&
+      lbsMessage.result === "success"
+    ) {
+      console.log(lbsMessage);
+      session = lbsMessage.new_session;
+
+      myPeerConnection.setRemoteDescription(
+        new RTCSessionDescription(lbsMessage.jsep)
+      );
+
+      handleCreateAnswer();
+
+      console.log("구독하기를 완료했습니다 🐲");
+    } else if (
+      lbsMessage.cmd === "WS_LEAVE_RSP" &&
+      lbsMessage.result === "success"
+    ) {
+      console.log(lbsMessage);
+      window.location.href = "/index.html";
+
+      console.log("방 떠나기 요청을 성공했습니다 🐶");
+    } else if (lbsMessage.cmd === "WS_DESTROY_RSP") {
+      console.log(lbsMessage);
+      window.location.href = "/index.html";
+      console.log("퍼블리셔가 방을 파괴 완료!!. 🚗");
+    } else if (lbsMessage.cmd === "WS_TRICKLE") {
+      console.log(lbsMessage);
+      console.log("Trickle 🥫");
     } else {
-      console.log("다른 요청 👎", message, lbsMessabe);
+      console.log("다른 요청 👎", message, lbsMessage);
     }
   });
 }
+
+// myPeerConnection.addEventListener("track", (e) => {
+//   document.getElementById("remoteVideo").srcObject = new MediaStream([e.track]);
+// });
+
 /**
- * 버튼 이벤트 만들기
+ * @event 버튼 이벤트 만들기
  */
 const sessionRequest = document.getElementById("sessionRequest");
 const createRoomRequest = document.getElementById("createRoomRequest");
 const joinRoomRequest = document.getElementById("joinRoomRequest");
 const publishRequest = document.getElementById("publishRequest");
+const partListRequest = document.getElementById("partListRequest");
+const subscribeRequest = document.getElementById("subscribeRequest");
+const leaveRequest = document.getElementById("leaveRequest");
+const destroyRequest = document.getElementById("destroyRequest");
 
 /**
- * 세션 요청 이벤트
+ * @event 세션 요청 이벤트
  */
 sessionRequest.onclick = () => {
   console.log("세션 요청 🟥");
   const message = {
     cmd: "WS_SESSION_REQ",
-    domain: "omnistory.net",
+    domain: "omnitalk.io",
     token: "1234-abcd-kqlk-1ab9",
-    email: "jason@omnistory.net",
+    email: "test111@test.net",
     sdk: "0.9.1",
   };
   socket.send(JSON.stringify(message));
 };
 
 /**
- * 방만들기 요청 이벤트
+ * @event 방만들기 요청 이벤트
  */
 createRoomRequest.onclick = () => {
   console.log("룸 만들기 🟧");
   const startDate = Math.floor(new Date().getTime() / 1000 + 60);
-  const endDate = Math.floor(new Date().getTime() / 1000 + 3600);
+  const endDate = Math.floor(new Date().getTime() / 1000 + 720);
   const message = {
     cmd: "WS_CREATE_REQ",
     session: session,
     title: "my room title is wow",
     secret: "",
-    rtype: "call",
+    rtype: "videoroom",
     start_date: startDate,
     end_date: endDate,
     maxnum: 10,
@@ -405,7 +462,7 @@ createRoomRequest.onclick = () => {
 };
 
 /**
- * 퍼블리셔의 방 참여 이벤트
+ * @event 퍼블리셔의 방 참여 이벤트
  */
 joinRoomRequest.onclick = () => {
   console.log("퍼블리셔의 방 참여 🟨");
@@ -420,10 +477,11 @@ joinRoomRequest.onclick = () => {
 };
 
 /**
- * 퍼블리셔의 방을 공개한다.
+ * @event 퍼블리셔의 방을 공개한다.
  */
 publishRequest.onclick = async () => {
   console.log("퍼블리셔의 방 공개 🧤");
+
   /**
    * 유저의 미디어 정보 가져오기
    * */
@@ -438,50 +496,139 @@ publishRequest.onclick = async () => {
   console.log("localStream", localStream);
 
   createPeerConnection();
+
   const offer = await myPeerConnection.createOffer();
   await myPeerConnection.setLocalDescription(offer);
-  console.log("offer", offer);
+
+  // console.log("offer", offer);
+  // console.log("sdp", offer.sdp);
+
   const message = {
     cmd: "WS_PUBLISH_REQ",
     session: session,
     groom_id: groom_id,
-    media: "video",
     resolution: "960x720",
     jsep: offer,
+    recording: false,
   };
   socket.send(JSON.stringify(message));
 };
 
 /**
- * 피어커넥션 함수
+ * @event 퍼블리셔의 참여자 목록 요청 이벤트
+ */
+partListRequest.onclick = () => {
+  console.log("방 참여 리스트 요청을 했습니다 🌕");
+  const message = {
+    cmd: "WS_PARTILIST_REQ",
+    session: session,
+    groom_id: groom_id,
+  };
+  socket.send(JSON.stringify(message));
+};
+
+/**
+ * @event 퍼블리셔의 구독 요청 이벤트
+ */
+subscribeRequest.onclick = () => {
+  console.log("구독하기 🐲");
+  console.log(partlist);
+  const message = {
+    cmd: "WS_SUBSCRIBE_REQ",
+    session: session,
+    groom_id: groom_id,
+    publish_idx: partlist[0].publish_id,
+  };
+  socket.send(JSON.stringify(message));
+};
+
+/**
+ * @event 퍼블리셔의 방 떠나기 이벤트
+ */
+leaveRequest.onclick = () => {
+  console.log("방 떠나기 요청을 했습니다 🐶");
+  const message = {
+    cmd: "WS_LEAVE_REQ",
+    session: session,
+    groom_id: groom_id,
+  };
+  socket.send(JSON.stringify(message));
+};
+
+/**
+ * @event 퍼블리셔의 방 파괴 이벤트
+ */
+destroyRequest.onclick = () => {
+  console.log("퍼블리셔가 방을 파괴 요청!!. 🚗");
+  const message = {
+    cmd: "WS_DESTROY_REQ",
+    session: session,
+    groom_id: groom_id,
+    secret: "",
+  };
+  socket.send(JSON.stringify(message));
+};
+
+/**
+ * @event 피어커넥션 함수
  */
 function createPeerConnection() {
-  console.log("createPeerConnection function start👔");
   myPeerConnection = new RTCPeerConnection();
-  // myPeerConnection.onicecandidate = (e) => {
-  //   const message = {
-  //     type: "candidate",
-  //     candidate: null,
-  //   };
-  //   if (myPeerConnection.candidate) {
-  //     message.candidate = e.candidate.candidate;
-  //     message.sdpMid = e.candidate.sdpMid;
-  //     message.sdpMLineIndex = e.candidate.sdpMLineIndex;
-  //   }
-  //   // signaling.postMessage(message);
-  // };
-  // myPeerConnection.ontrack = (e) => (remoteVideo.srcObject = e.streams[0]);
-  // localStream
-  //   .getTracks()
-  //   .forEach((track) => myPeerConnection.addTrack(track, localStream));
+
+  myPeerConnection.onicecandidate = (e) => {
+    console.log("🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅");
+    console.log(e);
+    console.log("myPeerConnection.iceGatheringState");
+    console.log(myPeerConnection.iceGatheringState);
+    let message;
+    if (e.candidate) {
+      message = {
+        cmd: "WS_TRICKLE",
+        session: session,
+        groom_id: groom_id,
+        candidate: e.candidate.candidate,
+      };
+    } else {
+      message = {
+        cmd: "WS_TRICKLE",
+        session: session,
+        groom_id: groom_id,
+        candidate: "completed:true",
+      };
+    }
+
+    console.log("🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅🍅");
+    socket.send(JSON.stringify(message));
+  };
+
+  myPeerConnection.addIceCandidate = (e) => {
+    // if (myPeerConnection.candidate) {
+    //   message.candidate = e.candidate.candidate;
+    //   message.sdpMid = e.candidate.sdpMid;
+    //   message.sdpMLineIndex = e.candidate.sdpMLineIndex;
+    // }
+    console.log("🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝");
+    console.log(e);
+    console.log("🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝🥝");
+  };
+  myPeerConnection.ontrack = (e) => {
+    console.log("onTrack 안입니다");
+    // console.log(e)((remoteVideo.srcObject = e.streams[0]));
+  };
+
+  // myPeerConnection에 미디어 정보를 넣어주어야 오류가 안 생김
+  localStream
+    .getTracks()
+    .forEach((track) => myPeerConnection.addTrack(track, localStream));
   console.log("myPeerConnection", myPeerConnection);
-  console.log("createPeerConnection function end👔");
 }
 
-/** 미디어 가져오기 성공시 호출 */
-function gotLocalMediaStream(stream) {
+/** @event 미디어 가져오기 성공시 호출 */
+async function gotLocalMediaStream(stream) {
   console.log("Add local stream😀");
-  console.log(stream);
+  console.log((await navigator.mediaDevices.enumerateDevices())[3]);
+  console.log("stream!!!", stream);
+  console.log("video", stream.getVideoTracks());
   localStream = stream;
   localVideo.srcObject = localStream;
 
@@ -490,7 +637,7 @@ function gotLocalMediaStream(stream) {
 
 /**
  * @param {*} error
- * 미디어 초기화 에러
+ * @event 미디어 초기화 에러
  */
 function handleLocalMediaStreamError(error) {
   console.log("navigator.getUserMedia error: ", error);

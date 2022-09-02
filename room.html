@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room</title>
+    <style>
+        .videoWrapper {
+            position: relative;
+            padding: 40px;
+            text-align: center;
+
+        }
+
+        .videoDesc {
+            position: absolute;
+            color: grey;
+            font-size: 25px;
+            left: 25%
+        }
+
+        #localVideo {
+            width: 400px;
+            height: 400px;
+
+        }
+
+        #remoteVideo {
+            width: 830px;
+            height: 520px;
+        }
+
+        #leaveRoomButton {
+            background-color: grey;
+            font-size: 30px;
+            padding: 10px;
+        }
+
+        #subscribeButton {
+            background-color: yellow;
+            font-size: 30px;
+            padding: 10px;
+        }
+    </style>
+   
+</head>
+
+<body>
+    <button id="leaveRoomButton">방떠나기</button>
+    <button id="subscribeButton">구독하기</button>
+    <button id="answerButton">앤서보내기</button>
+    <div class='videoWrapper'>
+        <label class='videoDesc'>Your</label>
+        <video id="localVideo" playsinline autoplay muted></video>
+    </div>
+    <div class='videoWrapper' id='videoWrapper'>
+        <label class='videoDesc'>Remote</label>
+        <video id="remoteVideo" playsinline autoplay></video>
+    </div>
+    <script src="./room.js"/>
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>webRTC 테스트</title>
+    <style>
+        .videoWrapper{
+            position: relative;
+            padding: 40px;
+            text-align: center;
+            
+        }
+
+        .videoDesc{
+            position: absolute;
+            color:grey;
+            font-size: 25px;
+            left:25%
+        }
+
+        #localVideo{
+            width: 820px;
+            height: 520px;
+            
+        }
+        #remoteVideo{
+            width: 830px;
+            height: 520px;
+        }
+
+        .etcWrapper{
+            text-align: center;
+        }
+        .buttonT{
+            padding: 10px;
+            font-size: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class = 'videoWrapper'>
+        <label class = 'videoDesc'>Your</label>
+        <video id="localVideo" playsinline autoplay muted></video>
+    </div>
+
+    <div class="etcWrapper">
+        <button id="startButton">Start</button>
+        <button id="hangupButton">Hang Up</button>
+        
+        <div class="select">
+            <label for="audioSource">Audio input source: </label><select id="audioSource"></select>
+        </div>
+        <div class="select">
+            <label for="audioOutput">Your Audio output destination: </label><select id="audioOutput"></select>
+        </div>
+        <div class="select">
+            <label for="videoSource">Your Video source: </label><select id="videoSource"></select>
+        </div>
+    </div>
+    <button id="sessionRequest" class = 'buttonT'>sessionRequest</button>
+    <button id="createRoomRequest" class = 'buttonT'>createRoomRequest</button>
+    <button id="joinRoomRequest" class = 'buttonT'>joinRoomRequest</button>
+    <button id="publishRequest" class = 'buttonT'>publishRequest</button>
+    <button id="partListRequest" class = 'buttonT'>partListRequest</button>
+    <button id="publishRequest" class = 'buttonT'>publishRequest</button>
+    <button id="subscribeRequest" class = 'buttonT'>subscribeRequest</button>
+    <button id="leaveRequest" class = 'buttonT'>leaveRequest</button>
+    <button id="destroyRequest" class = 'buttonT'>destroyRequest</button>
+    <div class = 'videoWrapper'>
+        <label class = 'videoDesc'>Remote</label>
+        <video id="remoteVideo" playsinline autoplay></video>
+    </div>
+    
+
+    
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<script src="./main.js" async></script>
+</body>
+</html>
