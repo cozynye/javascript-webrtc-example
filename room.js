@@ -187,7 +187,7 @@ setTimeout(() => {
       cmd: "WS_SESSION_REQ",
       domain: "omnitalk.io",
       token: "1234-abcd-kqlk-1ab9",
-      email: "jason@omnistory.net",
+      email: "test@omnistory.net",
       sdk: "0.9.1",
     })
   );

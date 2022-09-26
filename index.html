@@ -88,7 +88,7 @@
             console.log("세션을 요청했습니다. 🟥");
             socket.send(JSON.stringify({
                 cmd: "WS_SESSION_REQ",
-                domain: "test.net",
+                domain: "omnitalk.io",
                 token: "1234-abcd-kqlk-1ab9",
                 email: "test1@omnistory.net",
                 sdk: "0.9.1",
@@ -100,7 +100,7 @@
             socket.send(JSON.stringify({
                 cmd: "WS_ROOMLIST_REQ",
                 session: session,
-                domain: "test.net",
+                domain: "omnitalk.io",
             }));
         }, 1000)
 
