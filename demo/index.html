@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./omnitalk.js"></script>
+    <script src="https://omnitalk.io/new/adapter.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet" />
+    <title>Document</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            font-family: "Noto Sans KR", sans-serif;
+        }
+
+        button {
+            width: 100px;
+            border: none;
+            color: #fff;
+            background-color: rgb(255, 187, 50);
+            padding: 5px 10px;
+            font-size: .875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+            cursor: pointer;
+        }
+
+        button:disabled,
+        button[disabled] {
+            background-color: rgb(247 226 186);
+            color: #666666;
+            cursor: no-drop
+        }
+
+        div:disabled,
+        div[disabled] {
+            background-color: rgba(239, 239, 239, 0.3);
+            color: rgb(170, 170, 170);
+            border-color: rgba(118, 118, 118, 0.3);
+        }
+
+        label {
+            font-size: 16px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 0px;
+            text-indent: 10px;
+
+        }
+
+        input:focus {
+            outline: none !important;
+            border-color: rgb(255, 187, 50);
+            ;
+            box-shadow: 0 0 10px #d6a8e9;
+        }
+
+        h3 {
+            margin: 0px;
+        }
+
+        table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+
+        tr {
+            background-color: #fafafd;
+            padding: 10px 0 !important;
+        }
+
+        th {
+            padding: 10px;
+            border-bottom: 1px solid #ebeef5;
+        }
+        tbody > tr{
+           
+                background-color: white;
+           
+        }
+        tbody>tr>td{
+            padding:10px;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px 100px;
+        }
+
+
+        .itembox {
+            display: flex;
+            width: 100%;
+            gap: 50px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 100%;
+
+        }
+
+        .banner {
+            margin: 0;
+            padding: 10px 0px 10px 120px;
+            background-color: rgb(249 198 97);
+            color: white;
+            font-size: 20px;
+        }
+
+
+
+
+        .smallBtn {
+            font-size: 13px;
+            padding: 5px 10px;
+            color: white;
+        }
+
+        .room {
+            display: flex;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, .125);
+
+
+        }
+
+        .room>div {
+            width: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .room>div:first-child {
+            width: 200px;
+        }
+
+        .roomList {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, .125);
+            margin-top: 20px;
+            padding: 15px;
+
+        }
+
+        .roomHeader {
+            display: flex;
+            padding: 0px 10px 0px 10px;
+            align-items: center;
+
+
+        }
+
+        .roomHeader>div:first-child {
+            width: 200px;
+        }
+
+        .roomHeader>div {
+            width: 150px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, .125);
+            color: gray;
+            text-align: center;
+
+        }
+
+        .sessionInput {
+            width: 200px;
+            height: 35px;
+            border: 1px solid rgb(133, 133, 133);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .inputBox {
+            width: 500px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nickname {
+            width: 150px;
+            border: 1px solid rgba(0, 0, 0, .125);
+
+        }
+
+        .videoBox {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .video {
+            width: 40%;
+            padding: 10px;
+
+        }
+
+        .media {
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 800px) {
+
+            .container {
+                padding: 20px 10px;
+
+            }
+
+            .itembox {
+                gap: 20px;
+            }
+
+            .banner {
+                padding: 10px 0px 10px 10px;
+            }
+
+            .inputBox {
+                width: 100%;
+            }
+
+            .notice {
+                margin: 0;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <p class="banner">OmniTalk Basic Video Chat</p>
+    <div class="container">
+        <div id="media" class="media">
+            <div class="videoBox">
+                <div class="video">
+                    <p>LocalVideo</p>
+                    <video playsinline autoplay controls="false" id=Omnitalk-Video-0 width="100%"></video>
+                </div>
+                <div class="video">
+                    <p>RemoteVideo</p>
+                    <video playsinline autoplay controls="false" id=Omnitalk-Video-1 width="100%"></video>
+                </div>
+            </div>
+
+            <div id="audio"></div>
+        </div>
+        <div class="itembox">
+            <div class="item">
+                <h3>1. 세션 생성</h3>
+                <div id="session" placeholder="세션" class="sessionInput"></div>
+                <button id="createSessionBtn">세션 생성</button>
+            </div>
+
+            <div class="item">
+                <h3>2. 방 생성</h3>
+                <div class="inputBox"><input type="text" id="subject" placeholder="방 제목을 입력하세요" />
+                    <input type="text" id="password" placeholder="암호" />
+                </div>
+
+
+                <button id="createRoomBtn" disabled>방 생성</button>
+            </div>
+
+        </div>
+
+
+        <div class="itembox">
+
+            <div class="item">
+                <h3>3. 방 리스트</h3>
+                <!-- <input type="text" id="name" placeholder="닉네임" class="nickname" maxlength="15" /> -->
+                <button id="roomListBtn" disabled>리스트 보기 </button>
+                <!-- <div id="roomList" class="roomList">
+                    <div class="roomHeader">
+                        <div>방 이름</div>
+                        <div>닉네임</div>
+                        <div>암호</div>
+                        <div><strong>4. 참석하기</strong></div>
+                    </div>
+                    <div id="roomItem"></div>
+
+                </div> -->
+                <table id="roomList">
+                    <thead >
+                        <tr id="roomListTr">
+                            <th width="150px">
+                                <div>방 이름</div>
+                            </th>
+                            <th width="150px">
+                                <div>닉네임</div>
+                            </th>
+                            <th width="100px">
+                                <div>암호</div>
+                            </th>
+                            <th width="100px">
+                                <div><strong>4. 참석하기</strong></div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomTbody">
+
+                    </tbody>
+
+                </table>
+                
+            </div>
+
+        </div>
+
+        
+
+        <div class="itembox">
+            <div class="item">
+                <h3>6. 참여 리스트</h3>
+                <button id="partiListBtn" >리스트 보기</button>
+                <div id="partiList" class="roomList">
+                    <div class="roomHeader">
+                        <div>퍼블리시 아이디</div>
+                        <div>닉네임</div>
+                        <div><strong>7. 구독하기</strong></div>
+                    </div>
+                    <div id="partiItem"></div>
+                </div>
+            </div>
+        </div>
+        <div class="itembox">
+            <div class="item">
+                <h3>5. 퍼블리시</h3>
+                <button id="publishBtn">Publish</button>
+            </div>
+
+        </div>
+
+
+        <script src="./video.js"></script>
+</body>
+
+</html>
