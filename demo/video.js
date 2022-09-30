@@ -2,14 +2,16 @@
 const createSessionBtn = document.getElementById("createSessionBtn");
 const createRoomBtn = document.getElementById("createRoomBtn");
 const roomListBtn = document.getElementById("roomListBtn");
-const publishBtn = document.getElementById("publishBtn");
-const partiListBtn = document.getElementById("partiListBtn");
+const leaveRoomBtn = document.getElementById("leaveRoomBtn");
 
-// Input DOM
-let sessionInput = document.getElementById("session");
+// 로그 박스 DOM
+const logImageBox = document.getElementById("logImageBox");
+const logBox = document.getElementById("logBox");
+const closeLog = document.getElementById("closeLog");
+
+let sessionDiv = document.getElementById("session");
 let subject = document.getElementById("subject");
 let password = document.getElementById("password");
-let nickname = document.getElementById("name");
 
 // Varibale
 //@description 옴니톡 생성자 함수
@@ -19,7 +21,6 @@ let roomList;
 let sessionId;
 let pubIdx;
 let partlist;
-
 let listClickedIndex;
 
 /**
@@ -30,9 +31,8 @@ let listClickedIndex;
  */
 async function getSession() {
   sessionId = await omnitalk.createSession();
-  console.log(sessionId);
-  sessionInput.innerHTML = sessionId;
-  sessionInput.setAttribute("disabled", true);
+  sessionDiv.innerHTML = sessionId;
+  sessionDiv.setAttribute("disabled", true);
   createSessionBtn.setAttribute("disabled", true);
   createRoomBtn.removeAttribute("disabled");
   roomListBtn.removeAttribute("disabled");
@@ -64,39 +64,34 @@ async function makeRoom() {
 async function getRoomList() {
   // sessionId - createSession()을 통해 만든 세션 아이디
   roomList = await omnitalk.roomList(sessionId);
-  console.log("roomList");
-  console.log(roomList);
 
-  const roomTbody = document.getElementById("roomTbody");
-  if (roomTbody.hasChildNodes()) {
-    console.log("자식을 가지고 있습니다");
-    roomTbody.textContent = "";
+  const roomListBody = document.getElementById("roomListBody");
+  if (roomListBody.hasChildNodes()) {
+    roomListBody.textContent = "";
   }
 
   roomList.map((item, index) => {
-    const tr = document.createElement("tr");
-    const td1 = document.createElement("td");
-    const td2 = document.createElement("td");
-    const td3 = document.createElement("td");
-    const td4 = document.createElement("td");
-    const td5 = document.createElement("td");
     const room = document.createElement("div");
     const roomName = document.createElement("div");
-    const nickname = document.createElement("input");
-    const password = document.createElement("input");
+    const nicknameDiv = document.createElement("div");
+    const passwordDiv = document.createElement("div");
+    const nicknameInput = document.createElement("input");
+    const passwordInput = document.createElement("input");
     const participant = document.createElement("div");
     const joinRoomBtn = document.createElement("button");
     const roomId = document.createElement("div");
 
-    roomName.setAttribute("class", "title");
+    roomName.setAttribute("class", "roomListItem");
+    nicknameDiv.setAttribute("class", "roomListItem");
+    passwordDiv.setAttribute("class", "roomListItem");
+    participant.setAttribute("class", "roomListItem");
+    roomId.setAttribute("hidden", "true");
+
     roomName.innerHTML = item.subject || "제목 없음";
-
-    participant.setAttribute("class", "content");
-    td5.setAttribute("hidden", true);
-
     joinRoomBtn.innerHTML = "참석";
     joinRoomBtn.setAttribute("class", "smallBtn");
     joinRoomBtn.onclick = function () {
+      roomListBtn.setAttribute("disabled", true);
       joinRoom(item.room_id, item.subject, index);
     };
 
@@ -106,17 +101,14 @@ async function getRoomList() {
 
     participant.appendChild(joinRoomBtn);
 
-    td1.appendChild(roomName);
-    td2.appendChild(nickname);
-    td3.appendChild(password);
-    td4.appendChild(participant);
-    td5.appendChild(roomId);
-    tr.appendChild(td1);
-    tr.appendChild(td2);
-    tr.appendChild(td3);
-    tr.appendChild(td4);
-    tr.appendChild(td5);
-    roomTbody.appendChild(tr);
+    nicknameDiv.appendChild(nicknameInput);
+    passwordDiv.appendChild(passwordInput);
+    room.appendChild(roomName);
+    room.appendChild(nicknameDiv);
+    room.appendChild(passwordDiv);
+    room.appendChild(participant);
+    room.appendChild(roomId);
+    roomListBody.appendChild(room);
   });
 
   subject.setAttribute("disabled", true);
@@ -132,72 +124,51 @@ async function joinRoom(roomId, roomNm, index) {
     const randomNickname = (Math.random() * 1000).toFixed();
     let nickName = "";
     let password = "";
-    // partRoomId = roomId;
-    // let opt = {
-    //   secret: undefined,
-    //   user_id: undefined,
-    //   user_name: nickname.value || randomNickname,
-    // };
 
-    // await omnitalk.joinRoom(sessionId, roomId, opt);
-
-    const roomListTr = document.getElementById("roomListTr");
-    const partilistTh = document.createElement("th");
-    const partilistDiv = document.createElement("div");
-    const partilistStrong = document.createElement("strong");
-
-    const roomTbody = document.getElementById("roomTbody");
-    let roomTbodyLength =
-      document.getElementById("roomTbody").childElementCount;
+    const roomListBody = document.getElementById("roomListBody");
+    let roomListBodyLength =
+      document.getElementById("roomListBody").childElementCount;
 
     // 참석자 리스트 버튼 추가
-    for (let i = 0; i < roomTbodyLength; i++) {
-      const partilistTr = roomTbody.childNodes[i];
-      const nameInput = partilistTr.childNodes[1].childNodes[0];
-      const passwordInput = partilistTr.childNodes[2].childNodes[0];
-      const joinBtn = partilistTr.childNodes[3].childNodes[0].childNodes[0];
+    for (let i = 0; i < roomListBodyLength; i++) {
+      const roomListItem = roomListBody.childNodes[i];
+      const nameInput = roomListItem.childNodes[1].childNodes[0];
+      const passwordInput = roomListItem.childNodes[2].childNodes[0];
+      const joinBtn = roomListItem.childNodes[3].childNodes[0];
 
       nameInput.setAttribute("disabled", true);
       passwordInput.setAttribute("disabled", true);
       joinBtn.setAttribute("disabled", true);
+
+      // 클릭한 조인버튼 옆에 참석자 리스트 버튼 추가
       if (i === index) {
         listClickedIndex = index;
-        const partilistTd = document.createElement("td");
+        nickName = nameInput.value;
+        password = passwordInput.value;
+
         const partilistDiv = document.createElement("div");
         const participantListBtn = document.createElement("button");
-        const nameVal = partilistTr.childNodes[1].childNodes[0].value;
-        const passwordVal = partilistTr.childNodes[2].childNodes[0].value;
-        nickName = nameVal;
-        password = passwordVal;
 
-        participantListBtn.innerHTML = "리스트 보기";
+        partilistDiv.setAttribute("class", "roomListItem");
+
+        participantListBtn.innerHTML = "5. 참석자 리스트";
         participantListBtn.setAttribute("class", "smallBtn");
         participantListBtn.onclick = function () {
-          getPartiList(partilistTr.childNodes[4].childNodes[0].innerHTML);
+          getPartiList(roomId, nickName || randomNickname);
         };
-
         partilistDiv.appendChild(participantListBtn);
-        partilistTd.appendChild(partilistDiv);
-        partilistTr.appendChild(partilistTd);
+        roomListItem.appendChild(partilistDiv);
       }
     }
 
-    console.log("nickName", nickName);
-    console.log("password", password);
     let opt = {
       secret: password || undefined,
       user_id: undefined,
-      user_name: nickname || randomNickname,
+      user_name: nickName || randomNickname,
     };
 
     await omnitalk.joinRoom(sessionId, roomId, opt);
-
-    subscribeTh.setAttribute("width", "150px");
-    subscribeStrong.innerHTML = "5. 참석자 리스트";
-
-    subscribeDiv.appendChild(subscribeStrong);
-    subscribeTh.appendChild(subscribeDiv);
-    roomListTr.appendChild(subscribeTh);
+    leaveRoomBtn.removeAttribute("disabled");
   } catch (error) {
     console.log(error);
   }
@@ -206,77 +177,97 @@ async function joinRoom(roomId, roomNm, index) {
 /**
  * @description 퍼블리쉬
  */
-async function publish(roomId) {
+async function publish() {
   let opt = {
     audio: true,
     video: true,
     recording: true,
   };
 
-  pubIdx = await omnitalk.publish(opt);
+  await omnitalk.publish(opt);
 }
 
 /**
  * @description 참여자 불러오기
  */
-async function getPartiList(partRoomId) {
-  console.log("listClickedIndex");
-  console.log(listClickedIndex);
-  partlist = await omnitalk.partiList(partRoomId);
-  console.log("partlist");
-  console.log(partlist);
+async function getPartiList(roomId, nickName) {
+  partlist = await omnitalk.partiList(roomId);
 
-  const roomNode = document.getElementById("partiItem");
-  if (roomNode.hasChildNodes()) {
-    console.log("자식을 가지고 있습니다");
-    roomNode.textContent = "";
+  if (document.getElementById("contentBox")) {
+    document.getElementById("contentBox").remove();
   }
 
-  const subscribeTr = roomTbody.childNodes[listClickedIndex];
-  console.log(subscribeTr);
-  const table = document.createElement("table");
-  const thead = document.createElement("thead");
-  const tbody = document.createElement("tbody");
-  const theadTr = document.createElement("tr");
-  const theadTh1 = document.createElement("th");
-  const theadTh2 = document.createElement("th");
-  const theadDiv1 = document.createElement("div");
-  const theadDiv2 = document.createElement("div");
+  const clickedRow =
+    document.getElementById("roomListBody").childNodes[listClickedIndex];
 
-  theadDiv1.innerHTML = "닉네임";
-  theadDiv2.innerHTML = "7. 구독하기";
+  const contentBox = document.createElement("div");
+  const partilistBox = document.createElement("div");
+  const partilistHeader = document.createElement("div");
 
-  theadTh1.appendChild(theadDiv1);
-  theadTh2.appendChild(theadDiv2);
-  theadTr.appendChild(theadTh1);
-  theadTr.appendChild(theadTh2);
-  thead.appendChild(theadTr);
-  table.appendChild(thead);
-  partlist.map((item) => {
-    console.log("partiItem");
-    console.log(item);
-    const room = document.createElement("div");
-    const subscribeBtn = document.createElement("button");
-    const title = document.createElement("div");
-    const content = document.createElement("div");
-    const name = document.createElement("div");
-    title.setAttribute("class", "title");
-    title.innerHTML = item.publish_idx || "제목 없음";
-    name.innerHTML = item.user || "닉네임 없음";
-    name.setAttribute("class", "content");
-    content.setAttribute("class", "content");
-    subscribeBtn.innerHTML = "구독";
-    subscribeBtn.setAttribute("class", "smallBtn");
-    subscribeBtn.onclick = function () {
-      handleSubscribe(item.publish_idx);
-    };
-    room.setAttribute("class", "room");
-    content.appendChild(subscribeBtn);
-    room.appendChild(title);
-    room.appendChild(name);
-    room.appendChild(content);
-    roomNode.appendChild(room);
-  });
+  const partilistHeaderDiv1 = document.createElement("div");
+  const partilistHeaderDiv2 = document.createElement("div");
+
+  contentBox.setAttribute("class", "contentBox");
+  contentBox.setAttribute("id", "contentBox");
+  partilistBox.setAttribute("class", "partilist");
+  partilistHeader.setAttribute("class", "partilistheader");
+
+  partilistHeaderDiv1.innerHTML = "닉네임";
+  partilistHeaderDiv2.innerHTML = "6. 방송보기";
+
+  partilistHeader.appendChild(partilistHeaderDiv1);
+  partilistHeader.appendChild(partilistHeaderDiv2);
+  partilistBox.appendChild(partilistHeader);
+
+  if (partlist.length > 0) {
+    partlist.forEach((item) => {
+      const partilistItem = document.createElement("div");
+      const nicknameDiv = document.createElement("div");
+      const subscribeDiv = document.createElement("div");
+      const subscribeBtn = document.createElement("button");
+
+      nicknameDiv.innerHTML =
+        item.user === nickName ? `${item.user} (본인)` : item.user;
+      partilistItem.setAttribute("class", "parti");
+      nicknameDiv.setAttribute("class", "partilistItem");
+      subscribeDiv.setAttribute("class", "partilistItem");
+
+      subscribeBtn.innerHTML = "방송 보기";
+      subscribeBtn.setAttribute("class", "smallBtn");
+      subscribeBtn.onclick = function () {
+        handleSubscribe(item.publish_idx);
+      };
+
+      subscribeDiv.appendChild(subscribeBtn);
+
+      partilistItem.appendChild(nicknameDiv);
+      partilistItem.appendChild(subscribeDiv);
+
+      partilistBox.appendChild(partilistItem);
+    });
+  }
+  const publishDiv = document.createElement("div");
+  const publishBtn = document.createElement("button");
+
+  publishDiv.setAttribute("class", "partilistItem");
+  publishBtn.setAttribute("class", "smallBtn");
+  publishBtn.innerHTML = "방송하기";
+  publishBtn.onclick = function () {
+    publish();
+    publishBtn.innerHTML = "방송중입니다";
+    publishBtn.setAttribute("disabled", true);
+  };
+
+  // 로컬 미디어 스트림 일 시 버튼 disabled 설정
+  // if (!document.getElementById("Omnitalk-Video-0").paused) {
+  //   publishBtn.innerHTML = "방송중입니다";
+  //   publishBtn.setAttribute("disabled", true);
+  // }
+
+  publishDiv.appendChild(publishBtn);
+  contentBox.appendChild(partilistBox);
+  contentBox.appendChild(publishDiv);
+  clickedRow.after(contentBox);
 }
 
 /**
@@ -285,6 +276,25 @@ async function getPartiList(partRoomId) {
 async function handleSubscribe(pubIdx) {
   await omnitalk.subscribe(pubIdx);
 }
+
+/**
+ * @description 방 떠나기
+ */
+async function leaveRoom() {
+  createSessionBtn.removeAttribute("disabled");
+  roomListBtn.removeAttribute("disabled");
+  await omnitalk.leave(sessionId);
+}
+
+const logOpen = () => {
+  logBox.style.display = "block";
+  logImageBox.style.display = "none";
+};
+
+const logClose = () => {
+  logImageBox.style.display = "block";
+  logBox.style.display = "none";
+};
 
 window.onload = function () {
   // serviceId - 옴니톡에서 발급 받은 서비스 아이디 / 객체를 생성하면서 roomId, sessionId를 초기화
@@ -302,11 +312,18 @@ window.onload = function () {
     getRoomList();
   };
 
-  publishBtn.onclick = async () => {
-    publish();
+  leaveRoomBtn.onclick = async () => {
+    leaveRoom();
   };
 
-  partiListBtn.onclick = async () => {
-    getPartiList();
+  logImageBox.onclick = () => {
+    logOpen();
+  };
+  closeLog.onclick = () => {
+    logClose();
+  };
+
+  publishBtn.onclick = async () => {
+    publish();
   };
 };

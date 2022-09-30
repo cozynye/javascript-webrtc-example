@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="./omnitalk.js"></script>
-    <script src="https://omnitalk.io/new/adapter.js"></script>
+    <!-- <script src="https://omnitalk.io/demo/test2.js"></script> -->
+    <script src="https://omnitalk.io/js/omnitalk.0.1.1.js"></script>
+    <!-- <script src="./omnitalk.js"></script> -->
+    <script src="https://omnitalk.io/js/adapter.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet" />
     <title>Document</title>
     <style>
@@ -34,6 +36,7 @@
             color: #666666;
             cursor: no-drop
         }
+
 
         div:disabled,
         div[disabled] {
@@ -70,6 +73,10 @@
             overflow: hidden;
         }
 
+        table>caption {
+            margin-bottom: 20px;
+        }
+
         tr {
             background-color: #fafafd;
             padding: 10px 0 !important;
@@ -79,18 +86,21 @@
             padding: 10px;
             border-bottom: 1px solid #ebeef5;
         }
-        tbody > tr{
-           
-                background-color: white;
-           
+
+        tbody>tr {
+
+            background-color: white;
+
         }
-        tbody>tr>td{
-            padding:10px;
+
+        tbody>tr>td {
+            height: 20px;
+            padding: 10px;
             text-align: center;
         }
 
         .container {
-            padding: 20px 100px;
+            padding: 20px 50px 200px 100px;
         }
 
 
@@ -126,56 +136,74 @@
             font-size: 13px;
             padding: 5px 10px;
             color: white;
+            white-space: nowrap;
+        }
+
+
+
+        .roomListheader {
+            display: flex;
+            background-color: rgba(239, 239, 239, 0.3);
+        }
+
+        .roomListheader>div {
+            padding: 10px;
+            text-align: center;
+        }
+
+        .roomListBody {
+            display: flex;
+            flex-direction: column;
         }
 
         .room {
             display: flex;
-            padding: 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, .125);
-
-
+            align-items: center;
         }
 
-        .room>div {
-            width: 150px;
+        .roomListItem {
+            width: 100px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .contentBox {
             display: flex;
             justify-content: center;
-            align-items: center;
-            font-size: 14px;
+            align-items: flex-start;
+
+            margin-top: 10px;
+            margin-bottom: 50px;
         }
 
-        .room>div:first-child {
-            width: 200px;
-        }
-
-        .roomList {
+        .partilist {
+            width: 300px;
+            border: 1px solid rgba(118, 118, 118, 0.3);
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(0, 0, 0, .125);
-            margin-top: 20px;
-            padding: 15px;
-
-        }
-
-        .roomHeader {
-            display: flex;
-            padding: 0px 10px 0px 10px;
-            align-items: center;
-
-
-        }
-
-        .roomHeader>div:first-child {
-            width: 200px;
-        }
-
-        .roomHeader>div {
-            width: 150px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid rgba(0, 0, 0, .125);
-            color: gray;
+            justify-content: center;
             text-align: center;
+        }
 
+        .partilistheader {
+            display: flex;
+            background-color: rgba(239, 239, 239, 0.3);
+        }
+
+        .partilistheader>div {
+            width: 150px;
+            padding: 10px;
+        }
+
+        .parti {
+            display: flex;
+
+        }
+
+        .partilistItem {
+
+            width: 150px;
+            padding: 10px;
         }
 
         .sessionInput {
@@ -206,13 +234,144 @@
         }
 
         .video {
-            width: 40%;
+            width: 320px;
             padding: 10px;
 
         }
 
         .media {
             margin-bottom: 30px;
+        }
+
+        .tableBox {
+            width: 400px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .roomBox {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .logBox {
+            display: none;
+            position: fixed !important;
+            right: 25px !important;
+            bottom: 25px !important;
+            width: 370px !important;
+            height: 80% !important;
+            min-height: 520px !important;
+            max-height: 500px !important;
+            overflow: hidden !important;
+            background-color: transparent !important;
+            border-radius: 30px !important;
+            box-shadow: rgb(0 0 0 / 30%) 0px 12px 60px 5px !important;
+            animation: 0.25s ease-out 0s 1 normal none running jZyQVL !important;
+            z-index: 100;
+        }
+
+        .log {
+            position: relative !important;
+            height: 100%;
+            width: 100% !important;
+            border: none !important;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(60px);
+
+            word-wrap: break-word;
+        }
+
+        .logHeader {
+            height: 10%;
+            position: relative;
+            display: flex;
+            -webkit-box-align: center;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 60px;
+            padding-right: 14px;
+            padding-bottom: 1px;
+            padding-left: 22px;
+        }
+
+        .logHeader p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .logHeader span {
+            color: rgb(255, 187, 50);
+        }
+
+        .logHeader img{
+            cursor: pointer;
+        }
+
+        .logBody {
+            height: 85%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+
+            padding: 0px 20px 20px;
+        }
+
+        .logBody ul,
+        ol {
+            overflow: scroll;
+            padding: 0px;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .logBody ol:first-child {
+            font-size: 16px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.4);
+        }
+
+        .logImageBox {
+            position: fixed !important;
+            z-index: 10000000 !important;
+            display: block;
+            flex-wrap: nowrap !important;
+            width: auto !important;
+            overflow: visible !important;
+            background: transparent !important;
+            bottom: 30px !important;
+            right: 30px !important;
+
+        }
+
+        .logImageContent {
+            position: relative !important;
+            box-sizing: border-box !important;
+            flex-wrap: nowrap !important;
+            width: 60px !important;
+            height: 60px !important;
+            overflow: initial !important;
+            cursor: pointer !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 26px !important;
+            box-shadow: rgb(0 0 0 / 10%) 0px 4px 6px, rgb(0 0 0 / 15%) 0px 8px 30px, rgb(255 255 255 / 20%) 0px 0px 0px 1px inset !important;
+            transition: box-shadow 0.2s ease-out 0s !important;
+            animation: 0.2s display cubic-bezier(0.1, 0, 0.6, 1) 0.35s 1 normal backwards running fcEaNs !important;
+        }
+
+        .logImage {
+            position: absolute !important;
+            inset: 0px !important;
+            margin: auto !important;
+            flex: 0 0 auto;
+            width: 40px;
+            height: 40px;
+            margin: 0px;
+            color: rgb(94, 86, 240);
+            cursor: pointer;
+            opacity: 1;
         }
 
         @media (max-width: 800px) {
@@ -238,6 +397,7 @@
                 margin: 0;
                 font-size: 14px;
             }
+
         }
     </style>
 </head>
@@ -246,22 +406,29 @@
 
 
     <p class="banner">OmniTalk Basic Video Chat</p>
+
     <div class="container">
         <div id="media" class="media">
             <div class="videoBox">
                 <div class="video">
                     <p>LocalVideo</p>
-                    <video playsinline autoplay controls="false" id=Omnitalk-Video-0 width="100%"></video>
+                    <video playsinline autoplay controls="false"  id=Omnitalk-LocalVideo-0 width="100%"></video>
                 </div>
                 <div class="video">
                     <p>RemoteVideo</p>
-                    <video playsinline autoplay controls="false" id=Omnitalk-Video-1 width="100%"></video>
+                    <video playsinline autoplay controls="false" id=Omnitalk-RemoteVideo-0 class=Omnitalk-RemoteVideo-0 width="100%"></video>
+                </div>
+                <div class="video">
+                    <p>RemoteVideo</p>
+                    <video playsinline autoplay controls="false" id=Omnitalk-RemoteVideo-0 class=Omnitalk-RemoteVideo-1 width="100%"></video>
                 </div>
             </div>
 
             <div id="audio"></div>
         </div>
+
         <div class="itembox">
+
             <div class="item">
                 <h3>1. 세션 생성</h3>
                 <div id="session" placeholder="세션" class="sessionInput"></div>
@@ -273,8 +440,6 @@
                 <div class="inputBox"><input type="text" id="subject" placeholder="방 제목을 입력하세요" />
                     <input type="text" id="password" placeholder="암호" />
                 </div>
-
-
                 <button id="createRoomBtn" disabled>방 생성</button>
             </div>
 
@@ -285,69 +450,69 @@
 
             <div class="item">
                 <h3>3. 방 리스트</h3>
-                <!-- <input type="text" id="name" placeholder="닉네임" class="nickname" maxlength="15" /> -->
-                <button id="roomListBtn" disabled>리스트 보기 </button>
-                <!-- <div id="roomList" class="roomList">
-                    <div class="roomHeader">
-                        <div>방 이름</div>
-                        <div>닉네임</div>
-                        <div>암호</div>
-                        <div><strong>4. 참석하기</strong></div>
-                    </div>
-                    <div id="roomItem"></div>
+                <button id="roomListBtn" disabled>방 리스트 </button>
 
-                </div> -->
-                <table id="roomList">
-                    <thead >
-                        <tr id="roomListTr">
-                            <th width="150px">
-                                <div>방 이름</div>
-                            </th>
-                            <th width="150px">
+                <div class="roomBox">
+                    <div id="roomList">
+                        <div id="roomListheader" class="roomListheader">
+                            <div>
+                                <div style="width: 100px;">방 이름</div>
+                            </div>
+                            <div style="width: 100px;">
                                 <div>닉네임</div>
-                            </th>
-                            <th width="100px">
+                            </div>
+                            <div style="width: 100px;">
                                 <div>암호</div>
-                            </th>
-                            <th width="100px">
+                            </div>
+                            <div style="width: 100px;">
                                 <div><strong>4. 참석하기</strong></div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="roomTbody">
-
-                    </tbody>
-
-                </table>
-                
-            </div>
-
-        </div>
-
-        
-
-        <div class="itembox">
-            <div class="item">
-                <h3>6. 참여 리스트</h3>
-                <button id="partiListBtn" >리스트 보기</button>
-                <div id="partiList" class="roomList">
-                    <div class="roomHeader">
-                        <div>퍼블리시 아이디</div>
-                        <div>닉네임</div>
-                        <div><strong>7. 구독하기</strong></div>
+                            </div>
+                        </div>
+                        <div id="roomListBody" class="roomListBody">
+                        </div>
                     </div>
-                    <div id="partiItem"></div>
                 </div>
+
+
             </div>
+
         </div>
+
+        <button id="publishBtn" >퍼블리쉬</button>
+
         <div class="itembox">
             <div class="item">
-                <h3>5. 퍼블리시</h3>
-                <button id="publishBtn">Publish</button>
+                <h3>7. 방 떠나기</h3>
+                <button id="leaveRoomBtn" disabled>방 떠나기</button>
+            </div>
+        </div>
+        <div class="logImageBox" id="logImageBox">
+            <div class="logImageContent">
+                <img class="logImage" src="https://www.svgrepo.com/show/199848/log.svg" alt="log-image" />
             </div>
 
         </div>
+        <div class="logBox" id="logBox" hidden>
+            <div class="log">
+                <div class="logHeader">
+                    <div>
+                        <p><span>OMNI </span>TALK</p>
+                    </div>
+                    <div >
+                        <img id="closeLog" src="https://www.svgrepo.com/show/347885/x.svg"
+                            alt="close-icon" /></div>
+                </div>
+                <div class="logBody">
+                    <ul>
+                        <ol>LOG</ol>
+                        <ol>test1</ol>
+                        <ol>test2</ol>
 
+                    </ul>
+                </div>
+
+            </div>
+        </div>
 
         <script src="./video.js"></script>
 </body>
